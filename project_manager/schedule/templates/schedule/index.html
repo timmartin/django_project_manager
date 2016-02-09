@@ -6,8 +6,10 @@
   {% for task in tasks %}
   <tr>
     <td>
+      {{ task.name }}
     </td>
     <td>
+      {{ task.orig_estimate }}
     </td>
   </tr>
   {% endfor %}
