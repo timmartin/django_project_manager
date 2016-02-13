@@ -2,6 +2,8 @@
   <tr>
     <th>Name</th>
     <th>Estimate</th>
+    <th>Days worked</th>
+    <th>Estimate remaining</th>
   </tr>
   {% for task in tasks %}
   <tr>
@@ -10,6 +12,15 @@
     </td>
     <td>
       {{ task.orig_estimate }}
+    </td>
+    <td>
+      {{ task.days_worked }}
+    </td>
+    <td>
+      {{ task.estimate_remaining }}
+    </td>
+    <td>
+      <a href="{% url 'schedule:edit_task' pk=task.id %}">edit</a>
     </td>
   </tr>
   {% endfor %}
