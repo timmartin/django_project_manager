@@ -1,6 +1,7 @@
 <table>
   <tr>
     <th>Name</th>
+    <th>Resource</th>
     <th>Estimate</th>
     <th>Days worked</th>
     <th>Estimate remaining</th>
@@ -10,6 +11,9 @@
   <tr>
     <td>
       {{ task.name }}
+    </td>
+    <td>
+      {{ task.resource.name }}
     </td>
     <td>
       {{ task.orig_estimate }}

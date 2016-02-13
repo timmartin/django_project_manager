@@ -1,5 +1,5 @@
 <table>
-<form action="" method="post">
+<form action="{% url 'schedule:add_task' %}" method="post">
   {% csrf_token %}
   {{ form.as_table }}
 

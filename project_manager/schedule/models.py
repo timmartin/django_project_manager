@@ -1,10 +1,20 @@
 from django.db import models
 
+class Resource(models.Model):
+    name = models.CharField(max_length=20, primary_key=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Task(models.Model):
     name = models.CharField(max_length=50, unique=True)
     orig_estimate = models.IntegerField()
     days_worked = models.IntegerField(default=0)
     estimate_remaining = models.IntegerField()
+    resource = models.ForeignKey('Resource',
+                                 on_delete=models.PROTECT,
+                                 null=True)
 
     def save(self, *args, **kwargs):
         """Override the behaviour so that the estimate remaining is set to the
@@ -20,7 +30,4 @@ class Task(models.Model):
         return self.orig_estimate - (self.days_worked +
                                      self.estimate_remaining)
 
-
-class Resource(models.Model):
-    name = models.CharField(max_length=20, primary_key=True)
 

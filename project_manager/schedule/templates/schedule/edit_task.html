@@ -3,30 +3,12 @@
   {% csrf_token %}
   
   <table>
-    <tr>
-      <td>Name</td>
-      <td><input type="text" name="name" value="{{ task.name }}"></td>
-    </tr>
 
+    {{ form.as_table }}
+    
     <tr>
       <td>Original estimate</td>
       <td>{{ task.orig_estimate }}</td>
-    </tr>
-
-    <tr>
-      <td>Time spent</td>
-      <td><input type="text"
-		 size="4"
-		 name="days_worked"
-		 value="{{ task.days_worked }}"></td>
-    </tr>
-
-    <tr>
-      <td>Time remaining</td>
-      <td><input type="text"
-		 size="4"
-		 name="estimate_remaining"
-		 value="{{ task.estimate_remaining }}"></td>
     </tr>
 
     <tr>
