@@ -30,4 +30,5 @@ class Task(models.Model):
         return self.orig_estimate - (self.days_worked +
                                      self.estimate_remaining)
 
-
+    def current_estimate(self):
+        return self.days_worked + self.estimate_remaining
