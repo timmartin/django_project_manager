@@ -26,8 +26,10 @@
       chartData.addColumn('string', 'Dependencies');
 
     for (row in data) {
+    var end_date = new Date(data[row].end_date);
+    end_date.setHours(23);
     chartData.addRow([data[row].name, data[row].name, new Date(data[row].start_date),
-    null, daysToMilliseconds(data[row].duration), 0, data[row].depends_on]);
+    end_date, null, 0, data[row].depends_on]);
     }
     
       chart.draw(chartData, options);

@@ -54,14 +54,16 @@ def gantt_json(request):
                   for resource in Resource.objects.all()}
 
     for task in tasks:
+        start_date = resource_available_dates[task.resource.name]
+        end_date = task.estimated_end_date(start_date)
         result.append({'name': str(task.name),
-                       'start_date': resource_available_dates[task.resource.name],
+                       'start_date': start_date,
+                       'end_date': end_date,
                        'duration': task.current_estimate(),
                        'depends_on': last_tasks[task.resource.name]})
 
-        resource_available_dates[task.resource.name] = (
-            resource_available_dates[task.resource.name]
-            + datetime.timedelta(days=task.current_estimate()))
+        resource_available_dates[task.resource.name] = end_date + datetime.timedelta(days=1)
+
         last_tasks[task.resource.name] = task.name
         
         logger.debug("resource: %s",
