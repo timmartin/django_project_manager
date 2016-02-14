@@ -60,7 +60,8 @@ def gantt_json(request):
                        'start_date': start_date,
                        'end_date': end_date,
                        'duration': task.current_estimate(),
-                       'depends_on': last_tasks[task.resource.name]})
+                       'depends_on': last_tasks[task.resource.name],
+                       'resource': task.resource.name})
 
         resource_available_dates[task.resource.name] = end_date + datetime.timedelta(days=1)
 

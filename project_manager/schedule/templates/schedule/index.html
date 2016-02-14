@@ -18,7 +18,8 @@
 
       var chartData = new google.visualization.DataTable();
       chartData.addColumn('string', 'Task ID');
-      chartData.addColumn('string', 'Task Name');
+    chartData.addColumn('string', 'Task Name');
+    chartData.addColumn('string', 'Resource');
       chartData.addColumn('date', 'Start Date');
       chartData.addColumn('date', 'End Date');
       chartData.addColumn('number', 'Duration');
@@ -28,7 +29,7 @@
     for (row in data) {
     var end_date = new Date(data[row].end_date);
     end_date.setHours(23);
-    chartData.addRow([data[row].name, data[row].name, new Date(data[row].start_date),
+    chartData.addRow([data[row].name, data[row].name, data[row].resource, new Date(data[row].start_date),
     end_date, null, 0, data[row].depends_on]);
     }
     
