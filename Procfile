@@ -1,0 +1,1 @@
+web: gunicorn project_manager.wsgi --chdir project_manager
