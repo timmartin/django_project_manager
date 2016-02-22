@@ -3,5 +3,5 @@ python:
   - "2.7"
   - "3.5"
 install: "pip install -r requirements.txt"
-script: nosetests
+script: python project_manager/manage.py test schedule
 
