@@ -136,7 +136,7 @@ LOGGING = {
     'loggers': {
         'project_manager': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
         },
         'django': {
             'handlers': ['console'],
