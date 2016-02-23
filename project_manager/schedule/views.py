@@ -5,18 +5,22 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView
 from django.core.urlresolvers import reverse_lazy
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Task, Resource
 from .forms import TaskCreateForm, TaskEditForm
 
 logger = logging.getLogger('project_manager')
 
+@login_required
 def index(request):
     tasks = Task.objects.all()
 
     context = {'tasks': tasks}
     return render(request, 'schedule/index.html', context)
 
+@login_required
 def edit_task(request, pk):
     task = get_object_or_404(Task, pk=pk)
 
@@ -33,7 +37,8 @@ def edit_task(request, pk):
     context = {'task': task, 'form': form}
     return render(request, 'schedule/edit_task.html', context)
 
-class TaskCreate(CreateView):
+
+class TaskCreate(LoginRequiredMixin, CreateView):
     model = Task
     fields = ['name', 'orig_estimate']
     form = TaskCreateForm
@@ -41,6 +46,7 @@ class TaskCreate(CreateView):
     success_url = reverse_lazy('schedule:index')
 
 
+@login_required
 def gantt_json(request):
     tasks = Task.objects.all()
 
