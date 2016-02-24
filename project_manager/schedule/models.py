@@ -36,10 +36,10 @@ class Task(models.Model):
     estimate_remaining = models.IntegerField()
     resource = models.ForeignKey('Resource',
                                  on_delete=models.PROTECT,
-                                 null=True)
+                                 null=False)
     project = models.ForeignKey('Project',
                                 on_delete=models.PROTECT,
-                                null=True)
+                                null=False)
 
     def save(self, *args, **kwargs):
 
