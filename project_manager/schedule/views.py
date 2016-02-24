@@ -40,7 +40,7 @@ def edit_task(request, pk):
 
 class TaskCreate(LoginRequiredMixin, CreateView):
     model = Task
-    fields = ['name', 'orig_estimate']
+    fields = ['name', 'orig_estimate', 'resource']
     form = TaskCreateForm
 
     success_url = reverse_lazy('schedule:index')
