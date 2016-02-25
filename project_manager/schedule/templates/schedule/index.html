@@ -9,9 +9,10 @@
 {% endblock %}
 
 {% block content %}
+<h2>Gantt</h2>
 <div id="chart_div"></div>
 
-<table>
+<table class="table table-striped">
   <tr>
     <th>Name</th>
     <th>Resource</th>
@@ -19,6 +20,7 @@
     <th>Days worked</th>
     <th>Estimate remaining</th>
     <th>Gain</th>
+    <th></th>
   </tr>
   {% for task in tasks %}
   <tr>
@@ -47,8 +49,10 @@
   {% endfor %}
 
   <tr>
-    <td colspan="4">
-      <a href="{% url 'schedule:add_task' %}">add</a>
+    <td colspan="6"></td>
+    <td>
+      <a class="btn btn-primary"
+	 href="{% url 'schedule:add_task' %}">add</a>
     </td>
   </tr>
 </table>

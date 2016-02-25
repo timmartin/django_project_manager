@@ -1,3 +1,6 @@
+{% extends "schedule/base.html" %}
+
+{% block content %}
 <table>
 <form action="{% url 'schedule:add_task' %}" method="post">
   {% csrf_token %}
@@ -9,3 +12,4 @@
   </tr>
 </form>
 </table>
+{% endblock %}
