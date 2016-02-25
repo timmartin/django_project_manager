@@ -15,7 +15,7 @@ logger = logging.getLogger('project_manager')
 
 @login_required
 def index(request):
-    tasks = Task.objects.all()
+    tasks = Task.objects.all().order_by('pk')
 
     context = {'tasks': tasks}
     return render(request, 'schedule/index.html', context)
@@ -48,7 +48,7 @@ class TaskCreate(LoginRequiredMixin, CreateView):
 
 @login_required
 def gantt_json(request):
-    tasks = Task.objects.all()
+    tasks = Task.objects.all().order_by('pk')
 
     result = []
 
