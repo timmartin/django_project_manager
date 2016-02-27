@@ -1,5 +1,10 @@
 Django==1.9.2
+clize==3.0
 dj-database-url==0.4.0
 gunicorn==19.4.5
 psycopg2==2.6.1
+pyparsing==2.1.0
+python-gantt=0.5.0
+sigtools==1.1a2
+six==1.10.0
 whitenoise==2.0.6

@@ -4,13 +4,12 @@
 {% block javascript %}
 <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript" src="{% static 'js/gantt.js' %}"></script>
 
 {% endblock %}
 
 {% block content %}
 <h2>Gantt</h2>
-<div id="chart_div"></div>
+<object data="{% url 'schedule:gantt_svg' %}" type="image/svg+xml"></object>
 
 <table class="table table-striped">
   <tr>

@@ -1,15 +1,18 @@
 import datetime
 import logging
+import io
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView
 from django.core.urlresolvers import reverse_lazy
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Task, Resource
 from .forms import TaskCreateForm, TaskEditForm
+
+import gantt
 
 logger = logging.getLogger('project_manager')
 
@@ -48,34 +51,30 @@ class TaskCreate(LoginRequiredMixin, CreateView):
 
 @login_required
 def gantt_json(request):
-    tasks = Task.objects.all().order_by('pk')
+    return JsonResponse(Task.arrange_tasks(), safe=False)
 
-    result = []
-
-    resource_available_dates = {}
-    for resource in Resource.objects.all():
-        resource_available_dates[resource.name] = datetime.datetime.now().date()
-
-    last_tasks = {resource.name: None
-                  for resource in Resource.objects.all()}
-
-    for task in tasks:
-        start_date = resource_available_dates[task.resource.name]
-        end_date = task.estimated_end_date(start_date)
-        result.append({'name': str(task.name),
-                       'start_date': start_date,
-                       'end_date': end_date,
-                       'duration': task.current_estimate(),
-                       'depends_on': last_tasks[task.resource.name],
-                       'resource': task.resource.name})
-
-        resource_available_dates[task.resource.name] = end_date + datetime.timedelta(days=1)
-
-        last_tasks[task.resource.name] = task.name
-        
-        logger.debug("resource: %s",
-                     task.resource.name)
-        logger.debug("new date: %s",
-                     resource_available_dates[task.resource.name])
+@login_required
+def gantt_svg(request):
     
-    return JsonResponse(result, safe=False)
+    svg_buffer = io.BytesIO()
+    with io.TextIOWrapper(svg_buffer) as output:
+        resources = {resource.name : gantt.Resource(resource.name)
+                     for resource in Resource.objects.all()}
+
+        p = gantt.Project(name='Project 1')
+
+        tasks = Task.arrange_tasks()
+        for task in tasks:
+            task_obj = gantt.Task(name=task['name'],
+                                  start=task['start_date'],
+                                  duration=task['duration'],
+                                  resources=[resources[task['resource']]])
+            p.add_task(task_obj)
+
+        p.make_svg_for_tasks(filename=output,
+                             today=datetime.date(2016, 2, 27),
+                             start=tasks[0]['start_date'],
+                             end=datetime.date(2016, 3, 14))
+        
+        return HttpResponse(svg_buffer.getvalue(),
+                            content_type="image/svg+xml")

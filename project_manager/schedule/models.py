@@ -41,6 +41,43 @@ class Task(models.Model):
                                 on_delete=models.PROTECT,
                                 null=False)
 
+    @staticmethod
+    def arrange_tasks():
+        """Arrange the tasks so that they have sensible start and end dates
+        given the resources that are assigned to them.
+
+        :return: A list of dicts, which is messy but necessary for
+        compatibility between the JSON output and the data needed to
+        build SVG.
+
+        """
+        tasks = Task.objects.all().order_by('pk')
+
+        result = []
+
+        resource_available_dates = {}
+        for resource in Resource.objects.all():
+            resource_available_dates[resource.name] = datetime.datetime.now().date()
+
+        last_tasks = {resource.name: None
+                      for resource in Resource.objects.all()}
+
+        for task in tasks:
+            start_date = resource_available_dates[task.resource.name]
+            end_date = task.estimated_end_date(start_date)
+            result.append({'name': str(task.name),
+                           'start_date': start_date,
+                           'end_date': end_date,
+                           'duration': task.current_estimate(),
+                           'depends_on': last_tasks[task.resource.name],
+                           'resource': task.resource.name})
+
+            resource_available_dates[task.resource.name] = end_date + datetime.timedelta(days=1)
+
+            last_tasks[task.resource.name] = task.name
+        
+        return result
+    
     def save(self, *args, **kwargs):
 
         """Override the behaviour so that the estimate remaining is set to the
