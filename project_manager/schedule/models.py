@@ -51,7 +51,7 @@ class Task(models.Model):
         build SVG.
 
         """
-        tasks = Task.objects.all().order_by('pk')
+        tasks = Task.objects.filter(estimate_remaining__gt=0).order_by('pk')
 
         result = []
 
