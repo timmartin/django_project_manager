@@ -2,57 +2,102 @@
 {% load staticfiles %}
 
 {% block javascript %}
-<script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
+<script>
+  $(function(){
+    $("#task-tabs").tabs();
+  });
+</script>
 {% endblock %}
 
 {% block content %}
 <h2>Gantt</h2>
 <object data="{% url 'schedule:gantt_svg' %}" type="image/svg+xml"></object>
 
-<table class="table table-striped">
-  <tr>
-    <th>Name</th>
-    <th>Resource</th>
-    <th>Estimate</th>
-    <th>Days worked</th>
-    <th>Estimate remaining</th>
-    <th>Gain</th>
-    <th></th>
-  </tr>
-  {% for task in tasks %}
-  <tr>
-    <td>
-      {{ task.name }}
-    </td>
-    <td>
-      {{ task.resource.name }}
-    </td>
-    <td>
-      {{ task.orig_estimate }}
-    </td>
-    <td>
-      {{ task.days_worked }}
-    </td>
-    <td>
-      {{ task.estimate_remaining }}
-    </td>
-    <td>
-      {{ task.gain }}
-    </td>
-    <td>
-      <a href="{% url 'schedule:edit_task' pk=task.id %}">edit</a>
-    </td>
-  </tr>
-  {% endfor %}
+<div id="task-tabs">
+  <!-- Tab labels -->
+  <ul>
+    <li><a href="#tab-in-progress">In progress</a></li>
+    <li><a href="#tab-completed">Completed</a></li>
+  </ul>
 
-  <tr>
-    <td colspan="6"></td>
-    <td>
-      <a class="btn btn-primary"
-	 href="{% url 'schedule:add_task' %}">add</a>
-    </td>
-  </tr>
-</table>
+  <!-- Tab contents for in-progress tasks -->
+  <div id="tab-in-progress">
+    <table class="table table-striped">
+      <tr>
+	<th>Name</th>
+	<th>Resource</th>
+	<th>Estimate</th>
+	<th>Days worked</th>
+	<th>Estimate remaining</th>
+	<th>Gain</th>
+	<th></th>
+      </tr>
+      {% for task in tasks %}
+      <tr>
+	<td>
+	  {{ task.name }}
+	</td>
+	<td>
+	  {{ task.resource.name }}
+	</td>
+	<td>
+	  {{ task.orig_estimate }}
+	</td>
+	<td>
+	  {{ task.days_worked }}
+	</td>
+	<td>
+	  {{ task.estimate_remaining }}
+	</td>
+	<td>
+	  {{ task.gain }}
+	</td>
+	<td>
+	  <a href="{% url 'schedule:edit_task' pk=task.id %}">edit</a>
+	</td>
+      </tr>
+      {% endfor %}
+
+      <tr>
+	<td colspan="6"></td>
+	<td>
+	  <a class="btn btn-primary"
+	     href="{% url 'schedule:add_task' %}">add</a>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+  <div id="tab-completed">
+    <table class="table table-striped">
+      <tr>
+	<th>Name</th>
+	<th>Resource</th>
+	<th>Estimate</th>
+	<th>Days worked</th>
+	<th>Gain</th>
+	<th></th>
+      </tr>
+      {% for task in completed_tasks %}
+      <tr>
+	<td>
+	  {{ task.name }}
+	</td>
+	<td>
+	  {{ task.resource.name }}
+	</td>
+	<td>
+	  {{ task.orig_estimate }}
+	</td>
+	<td>
+	  {{ task.days_worked }}
+	</td>
+	<td>
+	  {{ task.gain }}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
 {% endblock %}

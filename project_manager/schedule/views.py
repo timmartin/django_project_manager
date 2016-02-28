@@ -18,9 +18,11 @@ logger = logging.getLogger('project_manager')
 
 @login_required
 def index(request):
-    tasks = Task.objects.all().order_by('pk')
+    tasks = Task.objects.filter(estimate_remaining__gt=0).order_by('pk')
+    completed_tasks = Task.objects.filter(estimate_remaining=0).order_by('pk')
 
-    context = {'tasks': tasks}
+    context = {'tasks': tasks,
+               'completed_tasks': completed_tasks}
     return render(request, 'schedule/index.html', context)
 
 @login_required
