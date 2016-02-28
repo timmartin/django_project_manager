@@ -71,15 +71,13 @@ def gantt_svg(request):
                                   resources=[resources[task['resource']]])
             p.add_task(task_obj)
 
-        # For some reason, make_svg_for_tasks fails if we give the end
-        # date as being the last day of the last task. We have to add
-        # an extra day.
         p.make_svg_for_tasks(filename=output,
                              today=tasks[0]['start_date'],
                              start=tasks[0]['start_date'],
                              end=(max(task['end_date']
-                                      for task in tasks)
-                                  + datetime.timedelta(days=1)))
-        
+                                      for task in tasks)))
+
+        output.flush()
+
         return HttpResponse(svg_buffer.getvalue(),
                             content_type="image/svg+xml")
