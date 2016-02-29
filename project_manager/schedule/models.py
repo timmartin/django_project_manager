@@ -68,7 +68,7 @@ class Task(models.Model):
             result.append({'name': str(task.name),
                            'start_date': start_date,
                            'end_date': end_date,
-                           'duration': task.current_estimate(),
+                           'duration': task.estimate_remaining,
                            'depends_on': last_tasks[task.resource.name],
                            'resource': task.resource.name})
 
