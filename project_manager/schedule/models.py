@@ -1,5 +1,7 @@
 import datetime
 import logging
+import random
+import string
 
 from django.db import models
 
@@ -7,9 +9,20 @@ logger = logging.getLogger('project_manager')
 
 class Project(models.Model):
     name = models.CharField(max_length=40, primary_key=True)
+    permalink = models.CharField(max_length=10, unique=True, null=False)
 
     def __str__(self):
         return str(self.name)
+
+    def create_permalink(self):
+        return ''.join(random.choice(string.ascii_lowercase
+                                     + string.ascii_uppercase
+                                     + string.digits)
+                       for i in range(10))
+
+    def save(self):
+        if not self.permalink:
+            self.permalink = self.create_permalink()
 
 
 class Resource(models.Model):
@@ -75,9 +88,9 @@ class Task(models.Model):
             resource_available_dates[task.resource.name] = end_date + datetime.timedelta(days=1)
 
             last_tasks[task.resource.name] = task.name
-        
+
         return result
-    
+
     def save(self, *args, **kwargs):
 
         """Override the behaviour so that the estimate remaining is set to the
@@ -106,11 +119,11 @@ class Task(models.Model):
         """
         logger.debug("estimated_end_date(start_date=%s)",
                      start_date)
-        
+
         end_date = start_date
         days_remaining = self.current_estimate()
         logger.debug("Estimated duration: %s", days_remaining)
-        
+
         while days_remaining > 1 or (not self.resource.is_available(end_date)):
             if self.resource.is_available(end_date):
                 logger.debug("Available on %s", end_date)

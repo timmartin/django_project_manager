@@ -5,11 +5,11 @@ import io
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView
 from django.core.urlresolvers import reverse_lazy
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Task, Resource
+from .models import Project, Task, Resource
 from .forms import TaskCreateForm, TaskEditForm
 
 import gantt
@@ -22,8 +22,10 @@ def index(request):
     completed_tasks = Task.objects.filter(estimate_remaining=0).order_by('pk')
 
     context = {'tasks': tasks,
-               'completed_tasks': completed_tasks}
+               'completed_tasks': completed_tasks,
+               'project': Project.objects.first()}
     return render(request, 'schedule/index.html', context)
+
 
 @login_required
 def edit_task(request, pk):
@@ -55,9 +57,18 @@ class TaskCreate(LoginRequiredMixin, CreateView):
 def gantt_json(request):
     return JsonResponse(Task.arrange_tasks(), safe=False)
 
-@login_required
-def gantt_svg(request):
-    
+
+def gantt_svg_permalink(request, permalink):
+    """Get the Gantt chart as an SVG, when a permalink has been
+    specified. This is allowed to be accessed without a login, to make
+    it easier to embed the permalink in places.
+
+    """
+
+    project = Project.objects.get(permalink=permalink)
+    if not project:
+        return HttpResponseNotFound()
+
     svg_buffer = io.BytesIO()
     with io.TextIOWrapper(svg_buffer) as output:
         resources = {resource.name : gantt.Resource(resource.name)
@@ -83,3 +94,9 @@ def gantt_svg(request):
 
         return HttpResponse(svg_buffer.getvalue(),
                             content_type="image/svg+xml")
+
+
+
+@login_required
+def gantt_svg(request):
+    return gantt_svg_permalink(request, Project.objects.first().permalink)
