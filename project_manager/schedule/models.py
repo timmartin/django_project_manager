@@ -121,7 +121,7 @@ class Task(models.Model):
                      start_date)
 
         end_date = start_date
-        days_remaining = self.current_estimate()
+        days_remaining = self.estimate_remaining
         logger.debug("Estimated duration: %s", days_remaining)
 
         while days_remaining > 1 or (not self.resource.is_available(end_date)):
