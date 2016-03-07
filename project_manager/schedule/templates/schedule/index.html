@@ -2,9 +2,13 @@
 {% load staticfiles %}
 
 {% block javascript %}
-<script>
+<script lang="javascript">
   $(function(){
     $("#task-tabs").tabs();
+    $(".sortable-table tbody").sortable({
+      items: "tr:not(.sortable-footer)"
+    });
+    $(".sortable-table tbody").disableSelection();
   });
 </script>
 {% endblock %}
@@ -27,18 +31,25 @@
 
   <!-- Tab contents for in-progress tasks -->
   <div id="tab-in-progress">
-    <table class="table table-striped">
-      <tr>
-	<th>Name</th>
-	<th>Resource</th>
-	<th>Estimate</th>
-	<th>Days worked</th>
-	<th>Estimate remaining</th>
-	<th>Gain</th>
-	<th></th>
-      </tr>
+    <table class="table table-striped sortable-table">
+      <thead>
+	<tr>
+	  <th></th>
+	  <th>Name</th>
+	  <th>Resource</th>
+	  <th>Estimate</th>
+	  <th>Days worked</th>
+	  <th>Estimate remaining</th>
+	  <th>Gain</th>
+	  <th></th>
+	</tr>
+      </thead>
+      <tbody>
       {% for task in tasks %}
       <tr>
+	<td>
+	  <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+	</td>
 	<td>
 	  {{ task.name }}
 	</td>
@@ -62,8 +73,9 @@
 	</td>
       </tr>
       {% endfor %}
+      </tbody>
 
-      <tr>
+      <tr class="sortable-footer">
 	<td colspan="6"></td>
 	<td>
 	  <a class="btn btn-primary"
