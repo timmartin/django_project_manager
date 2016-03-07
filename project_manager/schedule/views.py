@@ -3,7 +3,7 @@ import logging
 import io
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.core.urlresolvers import reverse_lazy
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
@@ -27,22 +27,13 @@ def index(request):
     return render(request, 'schedule/index.html', context)
 
 
-@login_required
-def edit_task(request, pk):
-    task = get_object_or_404(Task, pk=pk)
+class TaskEdit(LoginRequiredMixin, UpdateView):
+    model = Task
+    fields = ['name', 'resource', 'days_worked', 'estimate_remaining']
+    form = TaskEditForm
+    template_name = "schedule/edit_task.html"
 
-    if request.method == 'POST':
-        task.name = request.POST['name']
-        task.days_worked = request.POST['days_worked']
-        task.estimate_remaining = request.POST['estimate_remaining']
-        task.resource = Resource.objects.get(pk=request.POST['resource'])
-        task.save()
-        return redirect('schedule:index')    
-
-    form = TaskEditForm(instance=task)
-    
-    context = {'task': task, 'form': form}
-    return render(request, 'schedule/edit_task.html', context)
+    success_url = reverse_lazy('schedule:index')
 
 
 class TaskCreate(LoginRequiredMixin, CreateView):

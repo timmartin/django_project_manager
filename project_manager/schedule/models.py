@@ -2,10 +2,19 @@ import datetime
 import logging
 import random
 import string
+import math
 
 from django.db import models
+from django.core.exceptions import ValidationError
 
 logger = logging.getLogger('project_manager')
+
+def validate_half_day_granularity(value):
+    if int(value * 2) != value * 2:
+        raise ValidationError(
+            "%(value)s is not rounded to whole or half day",
+            params={'value': value}
+        )
 
 class Project(models.Model):
     name = models.CharField(max_length=40, primary_key=True)
@@ -44,9 +53,23 @@ class Resource(models.Model):
 
 class Task(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    orig_estimate = models.IntegerField()
-    days_worked = models.IntegerField(default=0)
-    estimate_remaining = models.IntegerField()
+
+    orig_estimate = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        validators=[validate_half_day_granularity])
+
+    days_worked = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        default=0,
+        validators=[validate_half_day_granularity])
+
+    estimate_remaining = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        validators=[validate_half_day_granularity])
+
     resource = models.ForeignKey('Resource',
                                  on_delete=models.PROTECT,
                                  null=False)
@@ -121,7 +144,13 @@ class Task(models.Model):
                      start_date)
 
         end_date = start_date
-        days_remaining = self.estimate_remaining
+
+        # We round up the work to the next whole day. We want to be
+        # able to track half-days for counting gain and slip, but
+        # accurately placing tasks on the plan in increments smaller
+        # than a day is fiddly and not all that useful.
+        days_remaining = math.ceil(self.estimate_remaining)
+
         logger.debug("Estimated duration: %s", days_remaining)
 
         while days_remaining > 1 or (not self.resource.is_available(end_date)):
