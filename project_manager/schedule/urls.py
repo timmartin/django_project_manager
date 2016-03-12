@@ -8,6 +8,8 @@ urlpatterns = [
     url(r'^tasks/(?P<pk>[0-9]+)/edit/$',
         views.TaskEdit.as_view(),
         name='edit_task'),
+    url(r'^resource-weekly/(?P<resource_id>[a-zA-Z0-9]+)',
+        views.resource_weekly_usage),
     url(r'^tasks/add/$',
         views.TaskCreate.as_view(),
         name='add_task'),

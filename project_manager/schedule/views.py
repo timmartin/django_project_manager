@@ -27,6 +27,15 @@ def index(request):
     return render(request, 'schedule/index.html', context)
 
 
+def resource_weekly_usage(request, resource_id):
+    resource = get_object_or_404(Resource, pk=resource_id)
+
+    context = {'resource': resource,
+               'tasks': Task.objects.all()}
+    
+    return render(request, 'schedule/resource_weekly_usage.html', context)
+
+
 class TaskEdit(LoginRequiredMixin, UpdateView):
     model = Task
     fields = ['name', 'resource', 'days_worked', 'estimate_remaining']

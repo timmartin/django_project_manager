@@ -1,0 +1,44 @@
+{% extends "schedule/base.html" %}
+{% load staticfiles %}
+
+{% block javascript %}
+<script src="{% static 'js/weekly_report.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="col-md-8">
+  <table class="table">
+    <tr>
+      <th>Monday</th>
+      <th>Tuesday</th>
+      <th>Wednesday</th>
+      <th>Thursday</th>
+      <th>Friday</th>
+    </tr>
+
+    <tr class="week_row">
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+
+    <tr class="week_row">
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+</div>
+
+<div class="col-md-4">
+  {% for task in tasks %}
+  <p><input type="radio" name="task" value="{{ task.pk }}" task-name="{{task.name}}">{{ task.name }}</input></p>
+  {% endfor %}
+</div>
+
+{% endblock %}
