@@ -5,8 +5,17 @@
 <script src="{% static 'js/weekly_report.js' %}"></script>
 {% endblock %}
 
+{% block extra-css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/brewer.css' %}">
+{% endblock %}
+
 {% block content %}
 
+<form action="{% url 'schedule:update_resource_usage' %}"
+      method="post">
+  {% csrf_token %}
+  <input type="hidden" name="resource" value="{{ resource.pk }}">
+  <input type="hidden" name="start_date" value="{{ start_date.isoformat }}">
 <div class="col-md-8">
   <table class="table">
     <tr>
@@ -18,26 +27,70 @@
     </tr>
 
     <tr class="week_row">
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>
+	<input class="day_input"
+	       type="hidden"
+	       name="days[AM][0]"
+	       value="{{ usage_lookup.0.AM.pk }}">
+	<span class="day_label">{{ usage_lookup.0.AM.label }}</span>
+      </td>
+      <td>
+	<input class="day_input" type="hidden" name="days[AM][1]" value="">
+	<span class="day_label"></span>
+      </td>
+      <td>
+	<input class="day_input" type="hidden" name="days[AM][2]" value="">
+	<span class="day_label"></span>
+      </td>
+      <td>
+	<input class="day_input" type="hidden" name="days[AM][3]" value="">
+	<span class="day_label"></span>
+      </td>
+      <td>
+	<input class="day_input" type="hidden" name="days[AM][4]" value="">
+	<span class="day_label"></span>
+      </td>
     </tr>
 
     <tr class="week_row">
+      <td>
+	<input class="day_input" type="hidden" name="days[PM][0]" value="">
+	<span class="day_label"></span>
+      </td>
+      <td>
+	<input class="day_input" type="hidden" name="days[PM][1]" value="">
+	<span class="day_label"></span>
+      </td>
+      <td>
+	<input class="day_input" type="hidden" name="days[PM][2]" value="">
+	<span class="day_label"></span>
+      </td>
+      <td>
+	<input class="day_input" type="hidden" name="days[PM][3]" value="">
+	<span class="day_label"></span>
+      </td>
+      <td>
+	<input class="day_input" type="hidden" name="days[PM][4]" value="">
+	<span class="day_label"></span>
+      </td>
+    </tr>
+
+    <tr>
       <td></td>
       <td></td>
       <td></td>
       <td></td>
-      <td></td>
+      <td><button class="btn btn-default" type="submit">Submit</button></td>
     </tr>
   </table>
+</form>
 </div>
 
 <div class="col-md-4">
   {% for task in tasks %}
-  <p><input type="radio" name="task" value="{{ task.pk }}" task-name="{{task.name}}">{{ task.name }}</input></p>
+  <p style="padding: 3px;" class="task_color{{ forloop.counter0 }}">
+    <input type="radio" name="task" value="{{ task.pk }}" task-name="{{task.name}}">{{ task.name }}</input>
+  </p>
   {% endfor %}
 </div>
 
