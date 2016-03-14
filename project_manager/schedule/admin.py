@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from .models import Project, Task, Resource
+from .models import Project, Task, Resource, ResourceUsage
 
 admin.site.register(Project)
 admin.site.register(Task)
 admin.site.register(Resource)
+admin.site.register(ResourceUsage)

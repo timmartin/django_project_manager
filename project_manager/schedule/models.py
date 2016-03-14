@@ -64,6 +64,10 @@ class ResourceUsage(models.Model):
         decimal_places=1,
         validators=[validate_half_day_granularity])
 
+    def __str__(self):
+        return "Resource Usage ({resource}, {date})" \
+            .format(resource=self.resource.name,
+                    date=self.date)
 
 class Task(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -127,6 +131,9 @@ class Task(models.Model):
             last_tasks[task.resource.name] = task.name
 
         return result
+
+    def __str__(self):
+        return self.name
 
     def save(self, *args, **kwargs):
 

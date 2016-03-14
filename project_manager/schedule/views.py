@@ -9,7 +9,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Project, Task, Resource
+from .models import Project, Task, Resource, ResourceUsage
 from .forms import TaskCreateForm, TaskEditForm
 
 import gantt
@@ -30,10 +30,111 @@ def index(request):
 def resource_weekly_usage(request, resource_id):
     resource = get_object_or_404(Resource, pk=resource_id)
 
+    start_date = datetime.date.today()
+    start_date = start_date - datetime.timedelta(days=start_date.weekday())
+
+    end_date = start_date + datetime.timedelta(days=5)
+
+    usages = ResourceUsage.objects \
+                          .filter(resource=resource,
+                                  date__gte=start_date,
+                                  date__lte=end_date) \
+                          .order_by('date')
+
+    usage_lookup = {}
+
+    tasks = list(Task.objects.filter(resource=resource))
+
+    for usage in usages:
+        offset = (usage.date - start_date).days
+        logger.debug("Processing %s, offset=%d", usage, offset)
+
+        if usage.task in tasks:
+            css_class = "task_color%d" % tasks.index(usage.task)
+        else:
+            logger.debug("%s not in %s",
+                         usage.task,
+                         tasks)
+            css_class = None
+
+        if offset in usage_lookup:
+            logger.debug("AM already exists, adding PM")
+            usage_lookup[offset]['pm'] = {'pk': usage.task.pk,
+                                          'label': usage.task.name,
+                                          'css_class': css_class}
+        else:
+            logger.debug("Adding to AM")
+            usage_lookup[offset] = {}
+            usage_lookup[offset]['am'] = {'pk': usage.task.pk,
+                                          'label': usage.task.name,
+                                          'css_class': css_class}
+
+            if usage.used > 0.5:
+                logger.debug("Extending to PM")
+                usage_lookup[offset]['pm'] = {'pk': usage.task.pk,
+                                              'label': usage.task.name,
+                                              'css_class' : css_class}
+
     context = {'resource': resource,
-               'tasks': Task.objects.all()}
-    
+               'tasks': tasks,
+               'start_date': start_date,
+               'usage_lookup': usage_lookup}
+
     return render(request, 'schedule/resource_weekly_usage.html', context)
+
+
+def resource_usage_update(request):
+
+    resource = get_object_or_404(Resource, pk=request.POST['resource'])
+
+    start_date = datetime.datetime.strptime(request.POST['start_date'],
+                                            '%Y-%m-%d') \
+                                  .date()
+
+    for day in range(5):
+        current_date = start_date + datetime.timedelta(days=day)
+
+        am_task = request.POST.get('days[AM][%d]' % day, '')
+        pm_task = request.POST.get('days[PM][%d]' % day, '')
+
+        if am_task != '':
+            am_task = Task.objects.get(pk=int(am_task))
+        else:
+            am_task = None
+
+        if pm_task != '':
+            pm_task = Task.objects.get(pk=int(pm_task))
+        else:
+            pm_task = None
+
+        ResourceUsage.objects.filter(resource=resource,
+                                     date=current_date) \
+            .delete()
+
+        if (am_task == pm_task) and (am_task is not None):
+            usage = ResourceUsage(resource=resource,
+                                  task=am_task,
+                                  date=current_date,
+                                  used=1)
+            usage.save()
+        else:
+            if am_task:
+                am_usage = ResourceUsage(resource=resource,
+                                         task=am_task,
+                                         date=current_date,
+                                         used=0.5)
+                am_usage.save()
+
+            if pm_task:
+                pm_usage = ResourceUsage(resource=resource,
+                                         task=pm_task,
+                                         date=current_date,
+                                         used=0.5)
+                pm_usage.save()
+
+    import pprint
+    return HttpResponse(pprint.pformat(list(request.POST.lists())),
+                        content_type="text/plain")
 
 
 class TaskEdit(LoginRequiredMixin, UpdateView):
