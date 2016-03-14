@@ -51,6 +51,20 @@ class Resource(models.Model):
         return date.weekday() in range(0, 5)
 
 
+class ResourceUsage(models.Model):
+    resource = models.ForeignKey('Resource',
+                                 on_delete=models.CASCADE,
+                                 null=False)
+    task = models.ForeignKey('Task',
+                             on_delete=models.CASCADE,
+                             null=False)
+    date = models.DateField(null=False)
+    used = models.DecimalField(
+        max_digits=2,
+        decimal_places=1,
+        validators=[validate_half_day_granularity])
+
+
 class Task(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
