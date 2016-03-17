@@ -9,4 +9,4 @@ class TaskCreateForm(forms.Form):
 class TaskEditForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ['name', 'resource', 'days_worked', 'estimate_remaining']
+        fields = ['name', 'resource', 'estimate_remaining']

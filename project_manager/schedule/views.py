@@ -23,7 +23,8 @@ def index(request):
 
     context = {'tasks': tasks,
                'completed_tasks': completed_tasks,
-               'project': Project.objects.first()}
+               'project': Project.objects.first(),
+               'resources': Resource.objects.all()}
     return render(request, 'schedule/index.html', context)
 
 
@@ -139,7 +140,7 @@ def resource_usage_update(request):
 
 class TaskEdit(LoginRequiredMixin, UpdateView):
     model = Task
-    fields = ['name', 'resource', 'days_worked', 'estimate_remaining']
+    fields = ['name', 'resource', 'estimate_remaining']
     form = TaskEditForm
     template_name = "schedule/edit_task.html"
 

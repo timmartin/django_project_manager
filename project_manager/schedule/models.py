@@ -5,6 +5,7 @@ import string
 import math
 
 from django.db import models
+from django.db.models import Sum
 from django.core.exceptions import ValidationError
 
 logger = logging.getLogger('project_manager')
@@ -77,12 +78,6 @@ class Task(models.Model):
         decimal_places=1,
         validators=[validate_half_day_granularity])
 
-    days_worked = models.DecimalField(
-        max_digits=4,
-        decimal_places=1,
-        default=0,
-        validators=[validate_half_day_granularity])
-
     estimate_remaining = models.DecimalField(
         max_digits=4,
         decimal_places=1,
@@ -94,6 +89,13 @@ class Task(models.Model):
     project = models.ForeignKey('Project',
                                 on_delete=models.PROTECT,
                                 null=False)
+
+    @property
+    def days_worked(self):
+        return ResourceUsage.objects \
+            .filter(task=self) \
+            .aggregate(Sum('used')) \
+            ["used__sum"] or 0
 
     @staticmethod
     def arrange_tasks():

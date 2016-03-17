@@ -12,7 +12,8 @@ urlpatterns = [
     # View and update the mapping of resources to tasks on a daily
     # basis
     url(r'^resource-weekly/view/(?P<resource_id>[a-zA-Z0-9]+)',
-        views.resource_weekly_usage),
+        views.resource_weekly_usage,
+        name="resource_weekly_usage"),
     url(r'^resource-weekly/update',
         views.resource_usage_update,
         name="update_resource_usage"),
