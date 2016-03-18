@@ -5,7 +5,11 @@ import io
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView
 from django.core.urlresolvers import reverse_lazy
-from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
+from django.http import (
+    JsonResponse,
+    HttpResponse,
+    HttpResponseNotFound,
+    HttpResponseRedirect)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -133,9 +137,7 @@ def resource_usage_update(request):
                                          used=0.5)
                 pm_usage.save()
 
-    import pprint
-    return HttpResponse(pprint.pformat(list(request.POST.lists())),
-                        content_type="text/plain")
+    return HttpResponseRedirect("/schedule/")
 
 
 class TaskEdit(LoginRequiredMixin, UpdateView):
