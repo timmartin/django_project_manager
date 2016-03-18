@@ -32,6 +32,7 @@ def index(request):
     return render(request, 'schedule/index.html', context)
 
 
+@login_required
 def resource_weekly_usage(request, resource_id):
     resource = get_object_or_404(Resource, pk=resource_id)
 
@@ -88,6 +89,7 @@ def resource_weekly_usage(request, resource_id):
     return render(request, 'schedule/resource_weekly_usage.html', context)
 
 
+@login_required
 def resource_usage_update(request):
 
     resource = get_object_or_404(Resource, pk=request.POST['resource'])
