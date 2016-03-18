@@ -34,6 +34,8 @@ class Project(models.Model):
         if not self.permalink:
             self.permalink = self.create_permalink()
 
+        super(Project, self).save()
+
 
 class Resource(models.Model):
     name = models.CharField(max_length=20, primary_key=True)
