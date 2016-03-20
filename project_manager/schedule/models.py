@@ -51,7 +51,14 @@ class Resource(models.Model):
 
         """
         assert isinstance(date, datetime.date)
-        return date.weekday() in range(0, 5)
+        if date.weekday() not in range(0, 5):
+            return False
+
+        if date in {holiday.date
+                    for holiday in self.holiday_set.all()}:
+            return False
+
+        return True
 
 
 class ResourceUsage(models.Model):
@@ -123,10 +130,34 @@ class Task(models.Model):
         for task in tasks:
             start_date = resource_available_dates[task.resource.name]
             end_date = task.estimated_end_date(start_date)
+
+            # The duration here is a hack to work around the interface
+            # to python-gantt. If we don't give it a duration it
+            # attempts to calculate one and it hits some bug in the
+            # way we're providing the arguments. To work around this,
+            # just calculate the duration here.
+            #
+            # However, this is easier said than done, since
+            # python-gantt wants to factor in the holidays, so we have
+            # to subtract them off here.
+            duration = (end_date - start_date).days
+
+            logger.debug("start_date: %s", start_date)
+            test_date = start_date
+            while (test_date <= end_date):
+                logger.debug("Holidays: %s",
+                             [holiday.date
+                              for holiday in task.resource.holiday_set.all()])
+                logger.debug("test_date: %r", test_date)
+                if task.resource.holiday_set.filter(date=test_date):
+                    logger.debug("date is a holiday")
+                    duration -= 1
+                test_date += datetime.timedelta(days=1)
+
             result.append({'name': str(task.name),
                            'start_date': start_date,
                            'end_date': end_date,
-                           'duration': task.estimate_remaining,
+                           'duration': duration,
                            'depends_on': last_tasks[task.resource.name],
                            'resource': task.resource.name})
 

@@ -177,10 +177,15 @@ def gantt_svg_permalink(request, permalink):
 
     svg_buffer = io.BytesIO()
     with io.TextIOWrapper(svg_buffer) as output:
+        db_resources = Resource.objects.all()
         resources = {resource.name : gantt.Resource(resource.name)
-                     for resource in Resource.objects.all()}
+                     for resource in db_resources}
 
         p = gantt.Project(name='Project 1')
+
+        for resource in db_resources:
+            for holiday in resource.holiday_set.all():
+                resources[resource.name].add_vacations(holiday.date)
 
         tasks = Task.arrange_tasks()
         for task in tasks:
@@ -190,11 +195,11 @@ def gantt_svg_permalink(request, permalink):
                                   resources=[resources[task['resource']]])
             p.add_task(task_obj)
 
-        p.make_svg_for_tasks(filename=output,
-                             today=tasks[0]['start_date'],
-                             start=tasks[0]['start_date'],
-                             end=(max(task['end_date']
-                                      for task in tasks)))
+        p.make_svg_for_resources(filename=output,
+                                 today=tasks[0]['start_date'],
+                                 start=tasks[0]['start_date'],
+                                 end=(max(task['end_date']
+                                          for task in tasks)))
 
         output.flush()
 
