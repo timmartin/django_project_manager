@@ -188,3 +188,10 @@ class Task(models.Model):
 
         logger.debug("end date: %s", end_date)
         return end_date
+
+
+class Holiday(models.Model):
+    resource = models.ForeignKey('Resource',
+                                 on_delete=models.CASCADE,
+                                 null=False)
+    date = models.DateField(null=False)
