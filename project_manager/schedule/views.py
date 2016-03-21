@@ -2,6 +2,8 @@ import datetime
 import logging
 import io
 
+from decimal import Decimal
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView, UpdateView
 from django.core.urlresolvers import reverse_lazy
@@ -12,6 +14,7 @@ from django.http import (
     HttpResponseRedirect)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 
 from .models import Project, Task, Resource, ResourceUsage
 from .forms import TaskCreateForm, TaskEditForm
@@ -98,46 +101,59 @@ def resource_usage_update(request):
                                             '%Y-%m-%d') \
                                   .date()
 
-    for day in range(5):
-        current_date = start_date + datetime.timedelta(days=day)
+    with transaction.atomic():
+        for day in range(5):
+            current_date = start_date + datetime.timedelta(days=day)
 
-        am_task = request.POST.get('days[AM][%d]' % day, '')
-        pm_task = request.POST.get('days[PM][%d]' % day, '')
+            am_task = request.POST.get('days[AM][%d]' % day, '')
+            pm_task = request.POST.get('days[PM][%d]' % day, '')
 
-        if am_task != '':
-            am_task = Task.objects.get(pk=int(am_task))
-        else:
-            am_task = None
+            if am_task != '':
+                am_task = Task.objects.get(pk=int(am_task))
+            else:
+                am_task = None
 
-        if pm_task != '':
-            pm_task = Task.objects.get(pk=int(pm_task))
-        else:
-            pm_task = None
+            if pm_task != '':
+                pm_task = Task.objects.get(pk=int(pm_task))
+            else:
+                pm_task = None
 
-        ResourceUsage.objects.filter(resource=resource,
-                                     date=current_date) \
-            .delete()
+            usage_to_delete = ResourceUsage.objects.filter(resource=resource,
+                                                           date=current_date)
+            for usage in usage_to_delete:
+                usage.task.estimate_remaining += usage.used
+                usage.task.save()
+            usage_to_delete.delete()
 
-        if (am_task == pm_task) and (am_task is not None):
-            usage = ResourceUsage(resource=resource,
-                                  task=am_task,
-                                  date=current_date,
-                                  used=1)
-            usage.save()
-        else:
-            if am_task:
-                am_usage = ResourceUsage(resource=resource,
-                                         task=am_task,
-                                         date=current_date,
-                                         used=0.5)
-                am_usage.save()
+            if (am_task == pm_task) and (am_task is not None):
+                usage = ResourceUsage(resource=resource,
+                                      task=am_task,
+                                      date=current_date,
+                                      used=1)
+                usage.save()
 
-            if pm_task:
-                pm_usage = ResourceUsage(resource=resource,
-                                         task=pm_task,
-                                         date=current_date,
-                                         used=0.5)
-                pm_usage.save()
+                am_task.estimate_remaining -= 1
+                am_task.save()
+            else:
+                if am_task:
+                    am_usage = ResourceUsage(resource=resource,
+                                             task=am_task,
+                                             date=current_date,
+                                             used=0.5)
+                    am_usage.save()
+
+                    am_task.estimate_remaining -= Decimal(0.5)
+                    am_task.save()
+
+                if pm_task:
+                    pm_usage = ResourceUsage(resource=resource,
+                                             task=pm_task,
+                                             date=current_date,
+                                             used=0.5)
+                    pm_usage.save()
+
+                    pm_task.estimate_remaining -= Decimal(0.5)
+                    pm_task.save()
 
     return HttpResponseRedirect("/schedule/")
 
