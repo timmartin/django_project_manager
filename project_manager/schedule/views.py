@@ -52,7 +52,8 @@ def resource_weekly_usage(request, resource_id):
 
     usage_lookup = {}
 
-    tasks = list(Task.objects.filter(resource=resource))
+    tasks = list(Task.objects.filter(resource=resource,
+                                     estimate_remaining__gt=0))
 
     for usage in usages:
         offset = (usage.date - start_date).days
