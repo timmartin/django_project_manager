@@ -56,3 +56,21 @@ class ViewTests(TestCase):
         task = Task.objects.get(pk=self.first_task.pk)
         self.assertEquals(task.gain(), 0)
         self.assertEquals(task.days_worked, 1.5)
+
+        response = self.client.get("/schedule/resource-weekly/view/worker")
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context["tasks"],
+                         [self.first_task])
+
+        response = self.client.post("/schedule/resource-weekly/update",
+                                    {'days[AM][0]': self.first_task.pk,
+                                     'days[PM][0]': self.first_task.pk,
+                                     'days[AM][1]': self.first_task.pk,
+                                     'resource': response.context['resource'].pk,
+                                     'start_date': '2016-03-07'})
+        self.assertRedirects(response, '/schedule/')
+
+        task = Task.objects.get(pk=self.first_task.pk)
+        self.assertEquals(task.gain(), 0)
+        self.assertEquals(task.days_worked, 1.5)

@@ -105,6 +105,13 @@ def resource_usage_update(request):
         for day in range(5):
             current_date = start_date + datetime.timedelta(days=day)
 
+            usage_to_delete = ResourceUsage.objects.filter(resource=resource,
+                                                           date=current_date)
+            for usage in usage_to_delete:
+                usage.task.estimate_remaining += usage.used
+                usage.task.save()
+            usage_to_delete.delete()
+
             am_task = request.POST.get('days[AM][%d]' % day, '')
             pm_task = request.POST.get('days[PM][%d]' % day, '')
 
@@ -117,13 +124,6 @@ def resource_usage_update(request):
                 pm_task = Task.objects.get(pk=int(pm_task))
             else:
                 pm_task = None
-
-            usage_to_delete = ResourceUsage.objects.filter(resource=resource,
-                                                           date=current_date)
-            for usage in usage_to_delete:
-                usage.task.estimate_remaining += usage.used
-                usage.task.save()
-            usage_to_delete.delete()
 
             if (am_task == pm_task) and (am_task is not None):
                 usage = ResourceUsage(resource=resource,
