@@ -99,6 +99,8 @@ class Task(models.Model):
                                 on_delete=models.PROTECT,
                                 null=False)
 
+    priority = models.IntegerField(default=0)
+
     @property
     def days_worked(self):
         return ResourceUsage.objects \
@@ -116,7 +118,7 @@ class Task(models.Model):
         build SVG.
 
         """
-        tasks = Task.objects.filter(estimate_remaining__gt=0).order_by('pk')
+        tasks = Task.objects.filter(estimate_remaining__gt=0).order_by('-priority', 'pk')
 
         result = []
 
