@@ -14,10 +14,14 @@ urlpatterns = [
     url(r'^resource-weekly/view/(?P<resource_id>[a-zA-Z0-9]+)',
         views.resource_weekly_usage,
         name="resource_weekly_usage"),
+    url(r'^resource-weekly/week/(?P<start_date>[0-9-]+)/view/(?P<resource_id>[a-zA-Z0-9]+)',
+        views.resource_weekly_usage,
+        name="resource_weekly_usage"),
+
     url(r'^resource-weekly/update',
         views.resource_usage_update,
         name="update_resource_usage"),
-    
+
     url(r'^tasks/add/$',
         views.TaskCreate.as_view(),
         name='add_task'),

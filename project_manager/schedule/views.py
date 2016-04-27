@@ -36,11 +36,14 @@ def index(request):
 
 
 @login_required
-def resource_weekly_usage(request, resource_id):
+def resource_weekly_usage(request, resource_id, start_date=None):
     resource = get_object_or_404(Resource, pk=resource_id)
 
-    start_date = datetime.date.today()
-    start_date = start_date - datetime.timedelta(days=start_date.weekday())
+    if start_date:
+        start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+    else:
+        start_date = datetime.date.today()
+        start_date = start_date - datetime.timedelta(days=start_date.weekday())
 
     end_date = start_date + datetime.timedelta(days=5)
 
@@ -88,6 +91,8 @@ def resource_weekly_usage(request, resource_id):
     context = {'resource': resource,
                'tasks': tasks,
                'start_date': start_date,
+               'previous_week_start': start_date - datetime.timedelta(days=7),
+               'next_week_start': start_date + datetime.timedelta(days=7),
                'usage_lookup': usage_lookup}
 
     return render(request, 'schedule/resource_weekly_usage.html', context)

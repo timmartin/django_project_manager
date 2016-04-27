@@ -19,14 +19,29 @@
 <div class="col-md-8">
   <table class="table">
     <tr>
+      <td>
+	<a href="{% url 'schedule:resource_weekly_usage' start_date=previous_week_start.isoformat resource_id=resource.pk %}">
+	  <span class="glyphicon glyphicon-chevron-left"
+		aria-hidden="true"></span>
+	  <span class="sr-only">Left</span>
+	</a>
+      </td>
       <th>Monday</th>
       <th>Tuesday</th>
       <th>Wednesday</th>
       <th>Thursday</th>
       <th>Friday</th>
+      <td>
+	<a href="{% url 'schedule:resource_weekly_usage' start_date=next_week_start.isoformat resource_id=resource.pk %}">
+	  <span class="glyphicon glyphicon-chevron-right"
+		aria-hidden="true"></span>
+	  <span class="sr-only">Right</span>
+	</a>
+      </td>
     </tr>
 
     <tr class="week_row">
+      <td></td>
       <td class="{{ usage_lookup.0.am.css_class }}">
 	<input class="day_input"
 	       type="hidden"
@@ -62,9 +77,11 @@
 	       value="{{ usage_lookup.4.am.pk }}">
 	<span class="day_label">{{ usage_lookup.4.am.label }}</span>
       </td>
+      <td></td>
     </tr>
 
     <tr class="week_row">
+      <td></td>
       <td class="{{ usage_lookup.0.pm.css_class }}">
 	<input class="day_input"
 	       type="hidden"
@@ -100,6 +117,7 @@
 	       value="{{ usage_lookup.4.pm.pk }}">
 	<span class="day_label">{{ usage_lookup.4.pm.label }}</span>
       </td>
+      <td></td>
     </tr>
 
     <tr>
@@ -107,7 +125,9 @@
       <td></td>
       <td></td>
       <td></td>
+      <td></td>
       <td><button class="btn btn-default" type="submit">Submit</button></td>
+      <td></td>
     </tr>
   </table>
 </form>
